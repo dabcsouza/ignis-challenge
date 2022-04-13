@@ -1,0 +1,8 @@
+body {
+  margin: 8px;
+}
+.main-label {
+  display: flex;
+  width: 80%;
+  margin: 5px 0;
+}
