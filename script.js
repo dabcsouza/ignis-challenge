@@ -1,47 +1,67 @@
 const textarea = document.getElementById('insert-time');
 const submitButton = document.querySelector('.submit-btn');
-const TeamsCombination = [];
-let inputValue;
+const teamsCombination = [];
+const rounds = []
+let inputArray;
 let arrayTeamsAndCity;
 let teamsName;
 let cityTeams;
 let numberOfTeams;
 let numberOfGames;
 
-const handleTextarea = ({ target: { value } }) => {
-  inputValue = value ? value : '';
+const addCitysArrayToRounds = () => {
+  rounds.forEach((round) => )
+}
+
+const orderRoundsTeams = () => {
+  rounds.forEach((round) => {
+    if (round.round % 2 === 0) round.games[0].reverse();
+    round.games.forEach((game, index) => {if (index % 2 === 1) game.reverse()})
+  });
+  addCitysArrayToRounds()
+};
+
+const createRounds = () => {
+  rounds.splice(0, rounds.length);
+  const gamesPerRound = numberOfGames / (numberOfTeams - 1);
+  for (let i = 0; i < numberOfTeams - 1; i += 1) {
+    rounds.push({
+      round: i + 1,
+      games: [...teamsCombination].slice(gamesPerRound*(i), gamesPerRound * (i + 1)),
+    });
+  };
+  orderRoundsTeams();
 }
 
 const reorderTeam = () => {
   const varAux = teamsName[1];
   teamsName.splice(1,1);
   teamsName.push(varAux);
-  console.log(teamsName);
 }
 
 const generateGame = () => {
-  console.log(teamsName);
   for (let i = 0; i < numberOfTeams - 1; i += 1) {
     for(let j = 0; j < numberOfTeams / 2; j += 1) {
-      TeamsCombination.push([teamsName[j], teamsName[(numberOfTeams - 1) - j]])
+      teamsCombination.push([teamsName[j], teamsName[(numberOfTeams - 1) - j]])
     }
     reorderTeam();
   }
-  console.log(TeamsCombination)
+  createRounds();
 }
 
 const handleButtonSubmit = () => {
   try {
-    inputValue = inputValue.split('\n');
-    numberOfTeams = inputValue.length;
+    const inputValue = textarea.value;
+    inputArray = inputValue.split('\n');
+    textarea.value = '';
+    numberOfTeams = inputArray.length;
     //Estatisticamente, cada um dos n times enfrenta n - 1 adversários (não enfrenta ele
     // próprio), por enquanto não considerando a inversão do mandante temos que a ordem não
     // importa nos dando o numero de jogos = n * (n-1) / 2
     numberOfGames = numberOfTeams * (numberOfTeams - 1) / 2;
-    console.log(numberOfGames);
     teamsName = Array(numberOfTeams).fill('');
     cityTeams = Array(numberOfTeams).fill('');
-    inputValue.forEach((team, index) => {
+    inputArray.forEach((team, index) => {
       teamsName[index] = team.split(';')[0];
       cityTeams[index] = team.split(';')[1];
     });
@@ -52,7 +72,12 @@ const handleButtonSubmit = () => {
   }
 }
 
+const handleTextarea = ({ target: { value } }) => {
+  const inputValue = value ? value : '';
+  localStorage.setItem('inputValue', inputValue);
+}
+
 window.onload = () => {
   submitButton.addEventListener('click', handleButtonSubmit);
-  textarea.addEventListener('change', handleTextarea);
+  textarea.addEventListener('keyup', handleTextarea);
 }
