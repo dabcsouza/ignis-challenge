@@ -1,16 +1,58 @@
 const textarea = document.getElementById('insert-time');
 const submitButton = document.querySelector('.submit-btn');
+const tableContainer = document.querySelector('.table-container');
 const teamsCombination = [];
 const rounds = []
 let inputArray;
-let arrayTeamsAndCity;
 let teamsName;
 let cityTeams;
 let numberOfTeams;
 let numberOfGames;
 
-const addCitysArrayToRounds = () => {
-  rounds.forEach((round) => )
+const renderTableGames = () => {
+  rounds.forEach((round) => {
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-striped', 'table-dark');
+    const theadHtml = `
+    <thead>
+      <tr>
+        <th scope="col">N.º</th>
+        <th scope="col">Jogo</th>
+        <th scope="col">Cidade</th>
+        <th scope="col">Placar</th>
+      </tr>
+    </thead>
+    <tbody>
+    `;
+    const tbodyHtml = round.games.map((game, index) => {
+      return(
+        `<tr>
+          <th scope="row">${ index + 1 }</th>
+          <td>${ game[0] } X ${ game[1] }</td>
+          <td>${ round.cities[index] }</td>
+          <td>${ Math.floor(Math.random() * 8) } X ${ Math.floor(Math.random() * 8) }</td>
+        </tr>`
+      );
+    });
+  tbodyHtml.push(`</tbody>`)
+  table.innerHTML = theadHtml + tbodyHtml.join('');
+  tableContainer.innerHTML += `<h3>Rodada${round.round}</h3>`
+  tableContainer.appendChild(table);
+  })
+}
+
+const addCitiesArrayToRounds = () => {
+  rounds.forEach((round) => {
+    const arrCities = []
+    round.games.forEach((team) => {
+      arrCities.push(
+        inputArray.find((el) => el
+          .includes(team[0])).split(';')[1]
+      )
+    });
+      round.cities = [...arrCities]
+  });
+  renderTableGames()
 }
 
 const orderRoundsTeams = () => {
@@ -18,7 +60,7 @@ const orderRoundsTeams = () => {
     if (round.round % 2 === 0) round.games[0].reverse();
     round.games.forEach((game, index) => {if (index % 2 === 1) game.reverse()})
   });
-  addCitysArrayToRounds()
+  addCitiesArrayToRounds()
 };
 
 const createRounds = () => {
