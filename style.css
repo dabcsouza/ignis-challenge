@@ -3,6 +3,18 @@ body {
 }
 .main-label {
   display: flex;
-  width: 80%;
-  margin: 5px 0;
+  width: 85%;
+  margin: 30px;
+}
+
+body > button {
+  margin: 2px 30px;
+}
+
+.table-container {
+  background-color: #a6bbf334;
+  width: 85%;
+  border-radius: 10px;
+  margin: 30px;
+  padding: 20px;
 }

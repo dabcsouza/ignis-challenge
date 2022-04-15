@@ -2,7 +2,8 @@ const textarea = document.getElementById('insert-time');
 const submitButton = document.querySelector('.submit-btn');
 const tableContainer = document.querySelector('.table-container');
 const teamsCombination = [];
-const rounds = []
+const rounds = [];
+const pointsArray = [];
 let inputArray;
 let teamsName;
 let cityTeams;
@@ -18,7 +19,7 @@ const renderTableGames = () => {
       <tr>
         <th scope="col">N.º</th>
         <th scope="col">Jogo</th>
-        <th scope="col">Cidade</th>
+        <th scope="col">Estado</th>
         <th scope="col">Placar</th>
       </tr>
     </thead>
@@ -30,7 +31,7 @@ const renderTableGames = () => {
           <th scope="row">${ index + 1 }</th>
           <td>${ game[0] } X ${ game[1] }</td>
           <td>${ round.cities[index] }</td>
-          <td>${ Math.floor(Math.random() * 8) } X ${ Math.floor(Math.random() * 8) }</td>
+          <td>${ round.results[index][0] } X ${ round.results[index][1] }</td>
         </tr>`
       );
     });
@@ -41,18 +42,28 @@ const renderTableGames = () => {
   })
 }
 
-const addCitiesArrayToRounds = () => {
+const generateArrayResults = () => {
+  renderTableGames();
+}
+
+const addCitiesAndResultToRounds = () => {
   rounds.forEach((round) => {
+    console.log(round);
     const arrCities = []
+    const arrResults = []
     round.games.forEach((team) => {
       arrCities.push(
         inputArray.find((el) => el
           .includes(team[0])).split(';')[1]
-      )
+      );
+      arrResults.push([Math.floor(Math.random() * 8),
+        Math.floor(Math.random() * 8)]);
     });
-      round.cities = [...arrCities]
+      round.cities = [...arrCities];
+      round.results = [...arrResults];
   });
-  renderTableGames()
+  console.log(rounds);
+  generateArrayResults();
 }
 
 const orderRoundsTeams = () => {
@@ -60,7 +71,7 @@ const orderRoundsTeams = () => {
     if (round.round % 2 === 0) round.games[0].reverse();
     round.games.forEach((game, index) => {if (index % 2 === 1) game.reverse()})
   });
-  addCitiesArrayToRounds()
+  addCitiesAndResultToRounds()
 };
 
 const createRounds = () => {
@@ -69,7 +80,7 @@ const createRounds = () => {
   for (let i = 0; i < numberOfTeams - 1; i += 1) {
     rounds.push({
       round: i + 1,
-      games: [...teamsCombination].slice(gamesPerRound*(i), gamesPerRound * (i + 1)),
+      games: [...teamsCombination].slice(gamesPerRound * (i), gamesPerRound * (i + 1)),
     });
   };
   orderRoundsTeams();
@@ -90,12 +101,21 @@ const generateGame = () => {
   }
   createRounds();
 }
-
+const clearData = () => {
+  teamsCombination.splice(0, teamsCombination.length);
+  rounds.splice(0, rounds.length);
+  teamsName = [];
+  cityTeams = [];
+  numberOfTeams = 0;
+  numberOfGames = 0;
+  tableContainer.innerHTML = '';
+  textarea.value = '';
+}
 const handleButtonSubmit = () => {
   try {
     const inputValue = textarea.value;
     inputArray = inputValue.split('\n');
-    textarea.value = '';
+    clearData();
     numberOfTeams = inputArray.length;
     //Estatisticamente, cada um dos n times enfrenta n - 1 adversários (não enfrenta ele
     // próprio), por enquanto não considerando a inversão do mandante temos que a ordem não
@@ -110,7 +130,7 @@ const handleButtonSubmit = () => {
     if(cityTeams.some((el) => !el || el === '')) throw new Error('invalid Data');
     generateGame()
   } catch (e) {
-    console.error(e.message);
+    console.error('Operação não permitida');
   }
 }
 
