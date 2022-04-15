@@ -3,7 +3,7 @@ const submitButton = document.querySelector('.submit-btn');
 const tableContainer = document.querySelector('.table-container');
 const teamsCombination = [];
 const rounds = [];
-const pointsArray = [];
+let pointsArray = [];
 let inputArray;
 let teamsName;
 let cityTeams;
@@ -40,15 +40,48 @@ const renderTableGames = () => {
   tableContainer.innerHTML += `<h3>Rodada${round.round}</h3>`
   tableContainer.appendChild(table);
   })
-}
+};
 
 const generateArrayResults = () => {
+  pointsArray = teamsName.map((team) => ({
+    Nome: team,
+    vitorias: 0,
+    empates: 0,
+    derrotas: 0,
+  }));
+  //percorre o array com o objeto de resultado de cada time
+  pointsArray.forEach((team) => {
+    //para cada time percorrer o array de rodadas
+    rounds.forEach((round) => {
+      round.games.forEach(([player1, player2], index) => {
+        // Este condicional mais externo verifica se o time jogou a partida
+        if ( player1 === team.Nome || player2 === team.Nome ) {
+          // Este condicional verifica se o time é o mandante do jogo
+          if (player1 === team.Nome) {
+            //Verifica o resultado do jogo (tricotomia: ganha, perde ou empata)
+            if (round.results[index][0] > round.results[index][1]) {
+              team.vitorias += 1
+            } else if (round.results[index][0] === round.results[index][1]) {
+              team.empates += 1
+            } else { team.derrotas += 1 }
+          } else {
+            //Se não é o mandante do jogo, é o visitante pois aqui ja sabemos que o time jogou
+            //Este else verifica o resultado do jogo no qual o time é visitante.
+            if (round.results[index][1] > round.results[index][0]) {
+              team.vitorias += 1
+            } else if (round.results[index][1] === round.results[index][0]) {
+              team.empates += 1
+            } else { team.derrotas += 1 }
+          };
+        };
+      })
+    });
+  });
   renderTableGames();
-}
+};
 
 const addCitiesAndResultToRounds = () => {
   rounds.forEach((round) => {
-    console.log(round);
     const arrCities = []
     const arrResults = []
     round.games.forEach((team) => {
@@ -62,16 +95,15 @@ const addCitiesAndResultToRounds = () => {
       round.cities = [...arrCities];
       round.results = [...arrResults];
   });
-  console.log(rounds);
   generateArrayResults();
-}
+};
 
 const orderRoundsTeams = () => {
   rounds.forEach((round) => {
     if (round.round % 2 === 0) round.games[0].reverse();
     round.games.forEach((game, index) => {if (index % 2 === 1) game.reverse()})
   });
-  addCitiesAndResultToRounds()
+  addCitiesAndResultToRounds();
 };
 
 const createRounds = () => {
@@ -84,13 +116,13 @@ const createRounds = () => {
     });
   };
   orderRoundsTeams();
-}
+};
 
 const reorderTeam = () => {
   const varAux = teamsName[1];
   teamsName.splice(1,1);
   teamsName.push(varAux);
-}
+};
 
 const generateGame = () => {
   for (let i = 0; i < numberOfTeams - 1; i += 1) {
@@ -100,17 +132,20 @@ const generateGame = () => {
     reorderTeam();
   }
   createRounds();
-}
+};
+
 const clearData = () => {
   teamsCombination.splice(0, teamsCombination.length);
   rounds.splice(0, rounds.length);
+  pointsArray= [];
   teamsName = [];
   cityTeams = [];
   numberOfTeams = 0;
   numberOfGames = 0;
   tableContainer.innerHTML = '';
   textarea.value = '';
-}
+};
+
 const handleButtonSubmit = () => {
   try {
     const inputValue = textarea.value;
@@ -132,14 +167,14 @@ const handleButtonSubmit = () => {
   } catch (e) {
     console.error('Operação não permitida');
   }
-}
+};
 
 const handleTextarea = ({ target: { value } }) => {
   const inputValue = value ? value : '';
   localStorage.setItem('inputValue', inputValue);
-}
+};
 
 window.onload = () => {
   submitButton.addEventListener('click', handleButtonSubmit);
   textarea.addEventListener('keyup', handleTextarea);
-}
+};
