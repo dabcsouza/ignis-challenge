@@ -38,11 +38,11 @@ const renderTableResults = () => {
     `;
 
   const tbodyHtml = pointsArray.map((teamRanking, index) => (
-    `<tr>
+    `<tr ${index === 0 ? 'class="table-success"' : ''}>
         <th scope="row">${ index + 1 }</th>
         <td>${ teamRanking.name }</td>
         <td>${ index === 0
-            ? teamRanking.totalPoints + ' *** Campeão ***'
+            ? '&#127881;' + teamRanking.totalPoints + '&#127881'
             : teamRanking.totalPoints }</td>
     </tr>`
   ));
@@ -66,7 +66,30 @@ const generateRoundsReturn = () => {
   return roundsReturn;
 };
 
+const checkDoubleRound = () => {
+  let auxRounds = [...rounds];
+  auxRounds.forEach((round, index) => {
+    let diffCities = {};
+    round.cities.forEach((city) => {
+      diffCities[city] = (diffCities[city] || 0) + 1;
+    })
+    auxRounds[index] = round;
+    auxRounds[index].qttDiffCities = diffCities;
+  })
+  auxRounds.forEach((round, index) => {
+    auxRounds[index].cities = round.cities.map((city) => {
+      return round.qttDiffCities[city] > 1
+      ? `${city} (RODADA DUPLA)`
+      : city;
+    });
+  });
+  console.log(auxRounds);
+  rounds.splice(0, rounds.length);
+  rounds.push(...auxRounds);
+}
+
 const renderTableGames = () => {
+  checkDoubleRound();
   rounds.forEach((round) => {
     const table = document.createElement('table');
     table.classList.add('table', 'table-striped', 'table-dark');
