@@ -23,7 +23,35 @@ const renderTableResults = () => {
   pointsArray.sort((a, b) => {
     return b.totalPoints - a.totalPoints
   });
-}
+
+  const table = document.createElement('table');
+    table.classList.add('table', 'table-hover');
+    const theadHtml = `
+      <thead>
+        <tr>
+          <th scope="col">Classificação</th>
+          <th scope="col">Time</th>
+          <th scope="col">Pontos</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
+  const tbodyHtml = pointsArray.map((teamRanking, index) => (
+    `<tr>
+        <th scope="row">${ index + 1 }</th>
+        <td>${ teamRanking.name }</td>
+        <td>${ index === 0
+            ? teamRanking.totalPoints + ' *** Campeão ***'
+            : teamRanking.totalPoints }</td>
+    </tr>`
+  ));
+
+  tbodyHtml.push(`</tbody>`);
+  table.innerHTML = theadHtml + tbodyHtml.join('');
+  tableResults.innerHTML += `<h3>Resultados</h3>`
+  tableResults.appendChild(table);  
+};
 
 const generateRoundsReturn = () => {
   const roundsReturn = rounds.map((round) => ({
@@ -36,7 +64,8 @@ const generateRoundsReturn = () => {
       .map((city) => city.split(';')[1]),
   }));
   return roundsReturn;
-}
+};
+
 const renderTableGames = () => {
   rounds.forEach((round) => {
     const table = document.createElement('table');
@@ -52,16 +81,15 @@ const renderTableGames = () => {
       </thead>
       <tbody>
     `;
-    const tbodyHtml = round.games.map((game, index) => {
-      return(
-        `<tr>
-          <th scope="row">${ index + 1 }</th>
-          <td>${ game[0] } X ${ game[1] }</td>
-          <td>${ round.cities[index] }</td>
-          <td>${ round.results[index][0] } X ${ round.results[index][1] }</td>
-        </tr>`
-      );
-    });
+    const tbodyHtml = round.games.map((game, index) => (
+      `<tr>
+        <th scope="row">${ index + 1 }</th>
+        <td>${ game[0] } X ${ game[1] }</td>
+        <td>${ round.cities[index] }</td>
+        <td>${ round.results[index][0] } X ${ round.results[index][1] }</td>
+      </tr>`
+    ));
+
     tbodyHtml.push(`</tbody>`)
     table.innerHTML = theadHtml + tbodyHtml.join('');
     tableContainer.innerHTML += `<h3>Rodada ${ round.round }</h3>`
@@ -111,7 +139,17 @@ const generateArrayPoints = () => {
   calcTotalPoints();
 };
 
+const adjustRounds = () => {
+  let roundsAux = rounds.map((round) => ({
+    ...round,
+    games: round.games.filter((game) => !game.includes('aux')),
+  }));
+  rounds.splice(0, rounds.length);
+  rounds.push(...roundsAux);
+}
+
 const addCitiesAndResultToRounds = () => {
+  adjustRounds();
   rounds.forEach((round) => {
     const arrCities = []
     const arrResults = []
@@ -182,6 +220,8 @@ const handleButtonSubmit = () => {
   try {
     const inputValue = textarea.value;
     inputArray = inputValue.split('\n');
+    //Verifica se o número de times fornecido é par, caso contrário a cada rodada um time estará descansando.
+    if (inputArray.length % 2 === 1) inputArray.push('aux;descanso');
     clearData();
     numberOfTeams = inputArray.length;
     //Estatisticamente, cada um dos n times enfrenta n - 1 adversários (não enfrenta ele
