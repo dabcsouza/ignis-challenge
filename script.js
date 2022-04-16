@@ -12,7 +12,6 @@ let numberOfTeams;
 let numberOfGames;
 
 const calcTotalPoints = () => {
-  console.log(pointsArray);
   pointsArray.forEach((team) => {
     team.totalPoints = (team.wins * 3) + team.draws
   });
@@ -20,24 +19,38 @@ const calcTotalPoints = () => {
 };
 
 const renderTableResults = () => {
-  
+  //ordenando a tabela de resultados
+  pointsArray.sort((a, b) => {
+    return b.totalPoints - a.totalPoints
+  });
 }
 
-
+const generateRoundsReturn = () => {
+  const roundsReturn = rounds.map((round) => ({
+    round: `${ round.round } - Returno`,
+    results: round.results.map((_result) => [Math.floor(Math.random() * 8),
+      Math.floor(Math.random() * 8)]),
+    games: round.games.map(([team1, team2]) => [team2, team1]),
+    cities: round.games
+      .map(([_team1, team2]) => inputArray.find((el) => el.includes(team2)))
+      .map((city) => city.split(';')[1]),
+  }));
+  return roundsReturn;
+}
 const renderTableGames = () => {
   rounds.forEach((round) => {
     const table = document.createElement('table');
     table.classList.add('table', 'table-striped', 'table-dark');
     const theadHtml = `
-    <thead>
-      <tr>
-        <th scope="col">N.º</th>
-        <th scope="col">Jogo</th>
-        <th scope="col">Estado</th>
-        <th scope="col">Placar</th>
-      </tr>
-    </thead>
-    <tbody>
+      <thead>
+        <tr>
+          <th scope="col">N.º</th>
+          <th scope="col">Jogo</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Placar</th>
+        </tr>
+      </thead>
+      <tbody>
     `;
     const tbodyHtml = round.games.map((game, index) => {
       return(
@@ -49,10 +62,10 @@ const renderTableGames = () => {
         </tr>`
       );
     });
-  tbodyHtml.push(`</tbody>`)
-  table.innerHTML = theadHtml + tbodyHtml.join('');
-  tableContainer.innerHTML += `<h3>Rodada${round.round}</h3>`
-  tableContainer.appendChild(table);
+    tbodyHtml.push(`</tbody>`)
+    table.innerHTML = theadHtml + tbodyHtml.join('');
+    tableContainer.innerHTML += `<h3>Rodada ${ round.round }</h3>`
+    tableContainer.appendChild(table);
   })
   renderTableResults()
 };
@@ -64,6 +77,9 @@ const generateArrayPoints = () => {
     draws: 0,
     loss: 0,
   }));
+  //Gera o Array de jogos de retorno e agrega ele ao array rounds
+  const roundReturn = generateRoundsReturn();
+  rounds.push(...roundReturn);
   //percorre o array com o objeto de resultado de cada time
   pointsArray.forEach((team) => {
     //para cada time percorrer o array de rodadas
@@ -145,7 +161,7 @@ const generateGame = () => {
       teamsCombination.push([teamsName[j], teamsName[(numberOfTeams - 1) - j]])
     }
     reorderTeam();
-  }
+  };
   createRounds();
 };
 
@@ -181,7 +197,8 @@ const handleButtonSubmit = () => {
     if(cityTeams.some((el) => !el || el === '')) throw new Error('invalid Data');
     generateGame()
   } catch (e) {
-    console.error('Operação não permitida');
+    console.error('Algo deu ruim');
+    console.error(e.message);
   }
 };
 
