@@ -1,6 +1,7 @@
 const textarea = document.getElementById('insert-time');
 const submitButton = document.querySelector('.submit-btn');
 const tableContainer = document.querySelector('.table-container');
+const tableResults = document.querySelector('.table-results');
 const teamsCombination = [];
 const rounds = [];
 let pointsArray = [];
@@ -9,6 +10,19 @@ let teamsName;
 let cityTeams;
 let numberOfTeams;
 let numberOfGames;
+
+const calcTotalPoints = () => {
+  console.log(pointsArray);
+  pointsArray.forEach((team) => {
+    team.totalPoints = (team.wins * 3) + team.draws
+  });
+  renderTableGames();
+};
+
+const renderTableResults = () => {
+  
+}
+
 
 const renderTableGames = () => {
   rounds.forEach((round) => {
@@ -40,14 +54,15 @@ const renderTableGames = () => {
   tableContainer.innerHTML += `<h3>Rodada${round.round}</h3>`
   tableContainer.appendChild(table);
   })
+  renderTableResults()
 };
 
-const generateArrayResults = () => {
+const generateArrayPoints = () => {
   pointsArray = teamsName.map((team) => ({
-    Nome: team,
-    vitorias: 0,
-    empates: 0,
-    derrotas: 0,
+    name: team,
+    wins: 0,
+    draws: 0,
+    loss: 0,
   }));
   //percorre o array com o objeto de resultado de cada time
   pointsArray.forEach((team) => {
@@ -55,29 +70,29 @@ const generateArrayResults = () => {
     rounds.forEach((round) => {
       round.games.forEach(([player1, player2], index) => {
         // Este condicional mais externo verifica se o time jogou a partida
-        if ( player1 === team.Nome || player2 === team.Nome ) {
+        if ( player1 === team.name || player2 === team.name ) {
           // Este condicional verifica se o time é o mandante do jogo
-          if (player1 === team.Nome) {
+          if (player1 === team.name) {
             //Verifica o resultado do jogo (tricotomia: ganha, perde ou empata)
             if (round.results[index][0] > round.results[index][1]) {
-              team.vitorias += 1
+              team.wins += 1
             } else if (round.results[index][0] === round.results[index][1]) {
-              team.empates += 1
-            } else { team.derrotas += 1 }
+              team.draws += 1
+            } else { team.loss += 1 }
           } else {
             //Se não é o mandante do jogo, é o visitante pois aqui ja sabemos que o time jogou
             //Este else verifica o resultado do jogo no qual o time é visitante.
             if (round.results[index][1] > round.results[index][0]) {
-              team.vitorias += 1
+              team.wins += 1
             } else if (round.results[index][1] === round.results[index][0]) {
-              team.empates += 1
-            } else { team.derrotas += 1 }
+              team.draws += 1
+            } else { team.loss += 1 }
           };
         };
       })
     });
   });
-  renderTableGames();
+  calcTotalPoints();
 };
 
 const addCitiesAndResultToRounds = () => {
@@ -95,7 +110,7 @@ const addCitiesAndResultToRounds = () => {
       round.cities = [...arrCities];
       round.results = [...arrResults];
   });
-  generateArrayResults();
+  generateArrayPoints();
 };
 
 const orderRoundsTeams = () => {
@@ -143,6 +158,7 @@ const clearData = () => {
   numberOfTeams = 0;
   numberOfGames = 0;
   tableContainer.innerHTML = '';
+  tableResults.innerHTML = '';
   textarea.value = '';
 };
 
