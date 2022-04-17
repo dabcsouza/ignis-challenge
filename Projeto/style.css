@@ -1,6 +1,11 @@
 body {
   margin: 8px;
 }
+
+h2 {
+  text-align: center;
+  color: rgba(74, 74, 228, 0.767);
+}
 .main-label {
   display: flex;
   width: 85%;
