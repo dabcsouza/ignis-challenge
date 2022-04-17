@@ -11,7 +11,7 @@ A aplicação encontra-se no repositório Projetos no repositório publico do gi
   1. `git clone https://github.com/dabcsouza/ignis-challenge`
   2. `cd ignis-challenge`
   3. `cd Projeto`
-  4. `npm install`  **instala o eslint** <br />
+  4. `npm install`  **instala o eslint** <br>
   *No editor de texto de sua prefência acesse o diretório presente, no meu caso usei o vscode:*
   4. `code .`
 
