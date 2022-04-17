@@ -1,8 +1,10 @@
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-console */
 const textarea = document.getElementById('insert-time');
 const submitButton = document.querySelector('.submit-btn');
 const tableContainer = document.querySelector('.table-container');
 const tableResults = document.querySelector('.table-results');
-const showChampion = document.querySelector('.champion');
+const showChampionSection = document.querySelector('.champion');
 
 const teamsCombination = [];
 const rounds = [];
@@ -13,16 +15,10 @@ let cityTeams;
 let numberOfTeams;
 let numberOfGames;
 
-const calcTotalPoints = () => {
-  pointsArray.forEach((team) => {
-    team.totalPoints = (team.wins * 3) + team.draws;
-  });
-  renderTableGames();
-};
-
 const renderTableResults = () => {
   // ordenando a tabela de resultados
   pointsArray.sort((a, b) => b.totalPoints - a.totalPoints);
+  pointsArray = pointsArray.filter((element) => element.name !== 'aux');
 
   const table = document.createElement('table');
   table.classList.add('table', 'table-hover');
@@ -51,6 +47,10 @@ const renderTableResults = () => {
   table.innerHTML = theadHtml + tbodyHtml.join('');
   tableResults.innerHTML += '<h3>Resultados</h3>';
   tableResults.appendChild(table);
+  showChampionSection
+    .innerHTML = `<p class="champion-title">${pointsArray[0].name}</p>
+    <h3> é o campeão com ${pointsArray[0]
+    .totalPoints} Pontos</h3>`;
 };
 
 const generateRoundsReturn = () => {
@@ -81,7 +81,7 @@ const checkDoubleRound = () => {
       ? `${city} (RODADA DUPLA)`
       : city));
   });
-  console.log(auxRounds);
+
   rounds.splice(0, rounds.length);
   rounds.push(...auxRounds);
 };
@@ -119,6 +119,14 @@ const renderTableGames = () => {
   renderTableResults();
 };
 
+const calcTotalPoints = () => {
+  pointsArray.forEach((team) => {
+    const teamVar = team;
+    teamVar.totalPoints = (team.wins * 3) + team.draws;
+  });
+  renderTableGames();
+};
+
 const generateArrayPoints = () => {
   pointsArray = teamsName.map((team) => ({
     name: team,
@@ -131,7 +139,7 @@ const generateArrayPoints = () => {
   rounds.push(...roundReturn);
   // percorre o array com o objeto de resultado de cada time
   pointsArray.forEach((team) => {
-    const teamVar = team;
+    const teamToAssign = team;
     // para cada time percorrer o array de rodadas
     rounds.forEach((round) => {
       round.games.forEach(([player1, player2], index) => {
@@ -141,18 +149,18 @@ const generateArrayPoints = () => {
           if (player1 === team.name) {
             // Verifica o resultado do jogo (tricotomia: ganha, perde ou empata)
             if (round.results[index][0] > round.results[index][1]) {
-              teamVar.wins += 1;
+              teamToAssign.wins += 1;
             } else if (round.results[index][0] === round.results[index][1]) {
-              teamVar.draws += 1;
-            } else { teamVar.loss += 1; }
+              teamToAssign.draws += 1;
+            } else { teamToAssign.loss += 1; }
           } else {
             // Se não é o mandante do jogo, é o visitante pois aqui ja sabemos que o time jogou
             // Este else verifica o resultado do jogo no qual o time é visitante.
             if (round.results[index][1] > round.results[index][0]) {
-              teamVar.wins += 1;
+              teamToAssign.wins += 1;
             } else if (round.results[index][1] === round.results[index][0]) {
-              teamVar.draws += 1;
-            } else { teamVar.loss += 1; }
+              teamToAssign.draws += 1;
+            } else { teamToAssign.loss += 1; }
           }
         }
       });
@@ -173,6 +181,7 @@ const adjustRounds = () => {
 const addCitiesAndResultToRounds = () => {
   adjustRounds();
   rounds.forEach((round) => {
+    const roundToEdit = round;
     const arrCities = [];
     const arrResults = [];
     round.games.forEach((team) => {
@@ -183,8 +192,8 @@ const addCitiesAndResultToRounds = () => {
       arrResults.push([Math.floor(Math.random() * 8),
         Math.floor(Math.random() * 8)]);
     });
-    round.cities = [...arrCities];
-    round.results = [...arrResults];
+    roundToEdit.cities = [...arrCities];
+    roundToEdit.results = [...arrResults];
   });
   generateArrayPoints();
 };
@@ -250,7 +259,7 @@ const handleButtonSubmit = () => {
     // Estatisticamente, cada um dos n times enfrenta n - 1 adversários (não enfrenta ele
     // próprio), por enquanto não considerando a inversão do mandante temos que a ordem não
     // importa nos dando o numero de jogos = n * (n-1) / 2
-    numberOfGames = numberOfTeams * (numberOfTeams - 1) / 2;
+    numberOfGames = (numberOfTeams * (numberOfTeams - 1)) / 2;
     teamsName = Array(numberOfTeams).fill('');
     cityTeams = Array(numberOfTeams).fill('');
     inputArray.forEach((team, index) => {
