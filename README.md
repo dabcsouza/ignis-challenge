@@ -43,7 +43,7 @@ levar em conta saldo de gols. :heavy_check_mark:
 6. Sinalizar as partidas com o texto "Rodada Dupla" quando houverem dois jogos na 
 mesma cidade na mesma rodada. :heavy_check_mark:
 
-##**Desde Já agradeço a oportunidade**
+**Desde Já agradeço a oportunidade**
 
 <!-- # DESAFIO IGNIS - 2022
 
